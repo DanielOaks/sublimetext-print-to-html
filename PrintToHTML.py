@@ -5,6 +5,7 @@ import sublime_plugin
 import desktop
 import tempfile
 import re
+import textwrap
 
 from sublimepygments import SublimeLexer
 
@@ -12,6 +13,8 @@ import pygments
 import pygments.formatters
 import pygments.lexers
 
+with open('wordwrap.js') as f:
+    WORD_WRAP_SCRIPT_BLOCK = '\n'.join(['<script>', f.read(), '</script>'])
 
 class PrintToHtmlCommand(sublime_plugin.TextCommand):
     """Convert current file to HTML and view in browser or ST2 buffer."""
@@ -100,7 +103,15 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
 
         # wrap long lines if requested
         if settings.get('word_wrap', False):
-            css += '\n.highlight > pre { width: 100%; word-wrap: break-word; }'
+            # default css word wrap
+            css += '\n.highlight > pre { word-wrap: break-word; white-space: pre-wrap; }'
+
+            # use JS in browser to indent wrapped lines past edge of line-number column
+            texts += [WORD_WRAP_SCRIPT_BLOCK]
+
+            if settings.get('word_wrap_break_anywhere', False):
+                # permit browser to wrap anywhere, not just between words
+                css += '\n.highlight > pre { word-break: break-all; }'
 
         # add custom css
         if settings.get('custom_css', None):
