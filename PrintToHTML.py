@@ -16,6 +16,7 @@ import pygments.lexers
 with open('wordwrap.js') as f:
     WORD_WRAP_SCRIPT_BLOCK = '\n'.join(['<script>', f.read(), '</script>'])
 
+
 class PrintToHtmlCommand(sublime_plugin.TextCommand):
     """Convert current file to HTML and view in browser or ST2 buffer."""
 
@@ -26,22 +27,22 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         selections = self.view.sel()
 
         if text_selected(selections):
-            texts = []
+            regions = []
 
             for selection in selections:
                 # start/end at start/end of selected line
                 region = self.view.line(sublime.Region(selection.a, selection.b))
 
                 # check for previous selection's bounds, add together if they overlap
-                if len(texts) > 0 and (texts[-1].b >= region.a):
-                    new_region = sublime.Region(texts[-1].a, region.b)
-                    texts[-1] = new_region
+                if len(regions) > 0 and (regions[-1].b >= region.a):
+                    new_region = sublime.Region(regions[-1].a, region.b)
+                    regions[-1] = new_region
                 else:
-                    texts.append(region)
+                    regions.append(region)
 
         else:
             region = sublime.Region(0, self.view.size())
-            texts = [region]
+            regions = [region]
 
         # get the buffer's filename
         filename = self.view.file_name()
@@ -66,7 +67,7 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         style = settings.get('style', 'default')
 
         # perform the conversion to HTML
-        css, texts = convert_to_html(filename, texts, encoding, options, style, self.view)
+        css, texts = convert_to_html(filename, regions, encoding, options, style, self.view)
 
         # construct onload body attrib for print/close JS within browser
         if target == 'browser':
@@ -165,7 +166,7 @@ def send_to_new_buffer(view, html):
     new_view.end_edit(new_edit)
 
 
-def convert_to_html(filename, texts, encoding, options, style, view):
+def convert_to_html(filename, regions, encoding, options, style, view):
     """Convert text to HTML form, using filename and syntax as lexer hints."""
     formatter = pygments.formatters.HtmlFormatter(
         encoding=encoding,
@@ -173,16 +174,16 @@ def convert_to_html(filename, texts, encoding, options, style, view):
         nobackground=not options['draw_background'],
         lineanchors='line' if options['line_anchors'] else False,
         style=style,
-        linenoend=view.rowcol(texts[-1].b)[0] + 1)
+        linenoend=view.rowcol(regions[-1].b)[0] + 1)
 
     css = formatter.get_style_defs('.highlight')
-    texts_out = []
-    for text in texts:
-        formatter.linenostart = view.rowcol(text.a)[0] + 1  # line number for each block
-        html = pygments.format(SublimeLexer().get_tokens([text, view]), formatter)
-        texts_out.append(html)
+    texts = []
+    for region in regions:
+        formatter.linenostart = view.rowcol(region.a)[0] + 1  # line number for each block
+        html = pygments.format(SublimeLexer().get_tokens([region, view]), formatter)
+        texts.append(html)
 
-    return css, texts_out
+    return css, texts
 
 
 def text_selected(selections):
