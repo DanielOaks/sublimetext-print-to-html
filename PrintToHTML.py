@@ -54,11 +54,6 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         elif encoding == 'Western (Windows 1252)':
             encoding = 'windows-1252'
 
-        # turn tabs into spaces per view's setting to ensure proper indentation
-        #spaces = ' ' * int(self.view.settings().get('tab_size', 8))
-        #for i in range(len(texts)):
-        #    texts[i][1] = re.sub(r'\t', spaces, texts[i][1])
-
         # gather Pygment related option flags from plugin settings
         optlist = ['line_numbering', 'draw_background', 'line_anchors']
         options = dict(map(lambda x: (x, settings.get(x, False)), optlist))
