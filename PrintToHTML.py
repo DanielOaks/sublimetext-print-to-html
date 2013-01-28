@@ -30,7 +30,7 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
             regions = []
 
             for selection in selections:
-                # start/end at start/end of selected line
+                # convert to start/end at start/end of selected line
                 region = self.view.line(sublime.Region(selection.a, selection.b))
 
                 # check for previous selection's bounds, add together if they overlap
