@@ -2,66 +2,40 @@
 
 import sublime
 from pygments.lexer import Lexer
-from pygments.token import Error, Text, Other, \
-     Comment, Operator, Keyword, Name, String, Number, Generic, Punctuation
+from pygments.token import STANDARD_TYPES, Generic, Name
+from pprint import pprint
 
 
-scope_names = [
-    ## Generics
-    ['comment.line', Comment.Single],
-    ['comment', Comment],
+token_alias_maps = [
+    ['Token.Generic', 'Generic'],
+    ['Token.Comment', 'Comment'],
+    ['Token.Operator', 'Operator'],
+    ['Token.Punctuation', 'Punctuation'],
+    ['Token.Literal', 'Literal'],
+    ['Token.Name', 'Name'],
+    ['Token.Keyword', 'Keyword'],
+    ['Token.Other', 'Other'],
+    ['Token.Error', 'Error'],
+    ['Token.Text', 'Text'],
 
-    ['numeric', Number],
-    ['arithmetic', Number],
-
-    ## Language-specific scopes
-    # Python
-    ['constant.other.placeholder.python', Name.Variable],
-    ['string.quoted.double.block.python', String.Doc],
-
-    ['keyword.control.import.python', Keyword.Namespace],
-    ['keyword.control.import.from.python', Keyword.Namespace],
-
-    ['support.function.builtin.python', Name.Builtin],
-    ['variable.language.python', Name.Builtin.Pseudo],
-
-    ['entity.other.inherited-class.python', Name.Attribute],
-
-    ['storage.type.class.python', Keyword],
-    ['storage.type.function.python', Keyword],
-
-    ['keyword.operator.logical.python', Operator.Word],
-
-    # C/C-like
-    ['storage.modifier.c', Keyword],
-    ['storage.type.c', Keyword.Type],
-    ['meta.function-call.c', Name.Attribute],
-    ['support.function.C99.c', Name.Attribute],
-
-    # Java
-    ['storage.modifier.import.java', Name.Namespace],
-
-    ['storage.modifier.java', Keyword],
-    ['storage.type.java', Keyword.Type],
-
-    ['variable.parameter.java', Name.Variable],
-
-    ## Low-priority generics
-    ['string.quoted.single.single-line', String.Single],
-    ['string', String],
-
-    ['constant', Name.Constant],
-
-    # For the operator output with Pygments' lexer, switch 'keyword' and 'operator'
-    ['keyword', Keyword],
-    ['operator', Operator],
-
-    ['entity.name.type.class', Name.Class],
-    ['entity.name.function', Name.Function],
-    ['storage.type', Keyword.Type],
-
-    ['variable.parameter.function', Name.Variable],
+    ['Literal.Number', 'Number'],
+    ['Literal.String', 'String'],
+    ['Text.Whitespace', 'Whitespace'],
 ]
+
+
+def create_token_mapping_dict():
+    """Return a dict with all the string -> token mappings."""
+    tokens = {}
+    for token in STANDARD_TYPES:
+        tokens[unicode(token)] = token
+
+        current_token = str(token)
+        for actual, alias in token_alias_maps:
+            if current_token.startswith(actual):
+                current_token = alias + current_token[len(actual):]
+                tokens[unicode(current_token)] = token
+    return tokens
 
 
 class SublimeLexer(Lexer):
@@ -73,6 +47,11 @@ class SublimeLexer(Lexer):
     aliases = []
     filenames = []
     mimetypes = []
+    tokens = {}
+
+    def __init__(self):
+        self.tokens = create_token_mapping_dict()
+        pprint(self.tokens)
 
     def get_tokens(self, args, unfiltered=False):
         region, view = args
@@ -88,6 +67,9 @@ class SublimeLexer(Lexer):
         settings = sublime.load_settings('Print to HTML.sublime-settings')
         debug = settings.get('debug', False)
 
+        scope_map_settings = sublime.load_settings('Mappings.sublime-settings')
+        scope_map = scope_map_settings.get('map', [])
+
         for i in range(region.a, region.b):
             current_string = view.substr(sublime.Region(i, i+1))
             current_scope = view.scope_name(i)
@@ -96,11 +78,11 @@ class SublimeLexer(Lexer):
             if current_string == u'\t':
                 current_string = spaces
 
-            for scope in scope_names:
+            for scope in scope_map:
                 if scope[0] in current_scope:
-                    current_token = scope[1]
+                    current_token = self.tokens[scope[1]]
                     break
-                elif scope == scope_names[-1]:
+                elif scope == scope_map[-1]:
                     current_token = Generic
 
             # Python namespace highlighting
