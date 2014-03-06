@@ -25,6 +25,10 @@
 
         ["keyword.operator.logical.python", "Operator.Word"],
 
+        // Lua
+        ["support.function.lua", "Name.Builtin.Pseudo"],
+        ["support.function.library.lua", "Name.Builtin.Pseudo"],
+
         // C/C-like
         ["storage.modifier.c", "Keyword"],
         ["storage.type.c", "Keyword.Type"],
