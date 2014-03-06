@@ -3,7 +3,6 @@
 import sublime
 from pygments.lexer import Lexer
 from pygments.token import STANDARD_TYPES, Generic, Name
-from pprint import pprint
 
 
 token_alias_maps = [
@@ -51,7 +50,10 @@ class SublimeLexer(Lexer):
 
     def __init__(self):
         self.tokens = create_token_mapping_dict()
-        pprint(self.tokens)
+        settings = sublime.load_settings('Print to HTML.sublime-settings')
+        if settings.get('debug', False):
+            from pprint import pprint
+            pprint(self.tokens)
 
     def get_tokens(self, args, unfiltered=False):
         region, view = args
