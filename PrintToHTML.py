@@ -17,8 +17,7 @@ from sublimepygments import SublimeLexer
 import pygments
 import pygments.formatters
 import pygments.lexers
-
-WORD_WRAP_SCRIPT_BLOCK = '\n'.join(['<script>', sublime.load_resource(sublime.find_resources('wordwrap.js')[0]), '</script>'])
+import pygments.styles
 
 
 class PrintToHtmlCommand(sublime_plugin.TextCommand):
@@ -107,6 +106,7 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
             css += '\n.highlight > pre { word-wrap: break-word; white-space: pre-wrap; }'
 
             # use JS in browser to indent wrapped lines past edge of line-number column
+            WORD_WRAP_SCRIPT_BLOCK = '\n'.join(['<script>', sublime.load_resource(sublime.find_resources('wordwrap.js')[0]), '</script>'])
             texts += [WORD_WRAP_SCRIPT_BLOCK]
 
             if settings.get('word_wrap_break_anywhere', False):
@@ -171,7 +171,7 @@ def convert_to_html(filename, regions, encoding, options, style, view):
         linenos='inline' if options['line_numbering'] else False,
         nobackground=not options['draw_background'],
         lineanchors='line' if options['line_anchors'] else False,
-        style=style,
+        style=pygments.styles.get_style_by_name(style),
         linenoend=view.rowcol(regions[-1].b)[0] + 1)
 
     css = formatter.get_style_defs('.highlight')
