@@ -28,13 +28,13 @@ def create_token_mapping_dict():
     """Return a dict with all the string -> token mappings."""
     tokens = {}
     for token in STANDARD_TYPES:
-        tokens[unicode(token)] = token
+        tokens[str(token)] = token
 
         current_token = str(token)
         for actual, alias in token_alias_maps:
             if current_token.startswith(actual):
                 current_token = alias + current_token[len(actual):]
-                tokens[unicode(current_token)] = token
+                tokens[str(current_token)] = token
     return tokens
 
 
