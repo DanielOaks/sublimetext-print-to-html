@@ -1,15 +1,19 @@
+# -*- coding: utf-8 -*-
 """
     pygments.lexers._postgres_builtins
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Self-updating data files for PostgreSQL lexer.
 
-    :copyright: Copyright 2006-2012 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2014 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-import urllib.request, urllib.parse, urllib.error
+try:
+    from urllib import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 # One man's constant is another man's variable.
 SOURCE_URL = 'https://github.com/postgres/postgres/raw/master'
@@ -17,11 +21,11 @@ KEYWORDS_URL = SOURCE_URL + '/doc/src/sgml/keywords.sgml'
 DATATYPES_URL = SOURCE_URL + '/doc/src/sgml/datatype.sgml'
 
 def update_myself():
-    data_file = list(fetch(DATATYPES_URL))
+    data_file = list(urlopen(DATATYPES_URL))
     datatypes = parse_datatypes(data_file)
     pseudos = parse_pseudos(data_file)
 
-    keywords = parse_keywords(fetch(KEYWORDS_URL))
+    keywords = parse_keywords(urlopen(KEYWORDS_URL))
     update_consts(__file__, 'DATATYPES', datatypes)
     update_consts(__file__, 'PSEUDO_TYPES', pseudos)
     update_consts(__file__, 'KEYWORDS', keywords)
@@ -41,7 +45,6 @@ def parse_keywords(f):
 
 def parse_datatypes(f):
     dt = set()
-    re_entry = re.compile('\s*<entry><type>([^<]+)</type></entry>')
     for line in f:
         if '<sect1' in line:
             break
@@ -57,7 +60,8 @@ def parse_datatypes(f):
         line = re.sub("<[^>]+>", "", line)
 
         # Drop the parts containing braces
-        for tmp in [ t for tmp in line.split('[') for t in tmp.split(']') if "(" not in t ]:
+        for tmp in [t for tmp in line.split('[')
+                    for t in tmp.split(']') if "(" not in t]:
             for t in tmp.split(','):
                 t = t.strip()
                 if not t: continue
@@ -94,9 +98,6 @@ def parse_pseudos(f):
         raise ValueError('pseudo datatypes not found')
 
     return dt
-
-def fetch(url):
-    return urllib.request.urlopen(url)
 
 def update_consts(filename, constname, content):
     f = open(filename)
@@ -204,17 +205,18 @@ DATATYPES = [
     'bigint', 'bigserial', 'bit', 'bit varying', 'bool', 'boolean', 'box',
     'bytea', 'char', 'character', 'character varying', 'cidr', 'circle',
     'date', 'decimal', 'double precision', 'float4', 'float8', 'inet',
-    'int', 'int2', 'int4', 'int8', 'integer', 'interval', 'line', 'lseg',
-    'macaddr', 'money', 'numeric', 'path', 'point', 'polygon', 'real',
-    'serial', 'serial4', 'serial8', 'smallint', 'text', 'time', 'timestamp',
-    'timestamptz', 'timetz', 'tsquery', 'tsvector', 'txid_snapshot', 'uuid',
-    'varbit', 'varchar', 'with time zone', 'without time zone', 'xml',
+    'int', 'int2', 'int4', 'int8', 'integer', 'interval', 'json', 'line',
+    'lseg', 'macaddr', 'money', 'numeric', 'path', 'point', 'polygon',
+    'real', 'serial', 'serial2', 'serial4', 'serial8', 'smallint',
+    'smallserial', 'text', 'time', 'timestamp', 'timestamptz', 'timetz',
+    'tsquery', 'tsvector', 'txid_snapshot', 'uuid', 'varbit', 'varchar',
+    'with time zone', 'without time zone', 'xml',
     ]
 
 PSEUDO_TYPES = [
-    'any', 'anyarray', 'anyelement', 'anyenum', 'anynonarray', 'cstring',
-    'internal', 'language_handler', 'fdw_handler', 'record', 'trigger',
-    'void', 'opaque',
+    'any', 'anyelement', 'anyarray', 'anynonarray', 'anyenum', 'anyrange',
+    'cstring', 'internal', 'language_handler', 'fdw_handler', 'record',
+    'trigger', 'void', 'opaque',
     ]
 
 # Remove 'trigger' from types

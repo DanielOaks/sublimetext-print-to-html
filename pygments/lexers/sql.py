@@ -34,17 +34,17 @@
     The ``tests/examplefiles`` contains a few test files with data to be
     parsed by these lexers.
 
-    :copyright: Copyright 2006-2012 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2014 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from copy import deepcopy
 
 from pygments.lexer import Lexer, RegexLexer, do_insertions, bygroups
 from pygments.token import Punctuation, \
-     Text, Comment, Operator, Keyword, Name, String, Number, Generic
+    Text, Comment, Operator, Keyword, Name, String, Number, Generic
 from pygments.lexers import get_lexer_by_name, ClassNotFound
+from pygments.util import iteritems
 
 from pygments.lexers._postgres_builtins import KEYWORDS, DATATYPES, \
      PSEUDO_TYPES, PLPGSQL_KEYWORDS
@@ -61,9 +61,6 @@ def language_callback(lexer, match):
     """Parse the content of a $-string using a lexer
 
     The lexer is chosen looking for a nearby LANGUAGE.
-
-    Note: this function should have been a `PostgresBase` method, but the
-    rules deepcopy fails in this case.
     """
     l = None
     m = language_re.match(lexer.text[match.end():match.end()+100])
@@ -93,8 +90,6 @@ class PostgresBase(object):
     had, _tokens could be created on this ancestor and not updated for the
     other classes, resulting e.g. in PL/pgSQL parsed as SQL. This shortcoming
     seem to suggest that regexp lexers are not really subclassable.
-
-    `language_callback` should really be our method, but this breaks deepcopy.
     """
     def get_tokens_unprocessed(self, text, *args):
         # Have a copy of the entire text to be used by `language_callback`.
@@ -130,7 +125,7 @@ class PostgresLexer(PostgresBase, RegexLexer):
     """
     Lexer for the PostgreSQL dialect of SQL.
 
-    *New in Pygments 1.5.*
+    .. versionadded:: 1.5
     """
 
     name = 'PostgreSQL SQL dialect'
@@ -175,14 +170,14 @@ class PlPgsqlLexer(PostgresBase, RegexLexer):
     """
     Handle the extra syntax in Pl/pgSQL language.
 
-    *New in Pygments 1.5.*
+    .. versionadded:: 1.5
     """
     name = 'PL/pgSQL'
     aliases = ['plpgsql']
     mimetypes = ['text/x-plpgsql']
 
     flags = re.IGNORECASE
-    tokens = deepcopy(PostgresLexer.tokens)
+    tokens = dict((k, l[:]) for (k, l) in iteritems(PostgresLexer.tokens))
 
     # extend the keywords list
     for i, pattern in enumerate(tokens['root']):
@@ -216,7 +211,7 @@ class PsqlRegexLexer(PostgresBase, RegexLexer):
     aliases = []    # not public
 
     flags = re.IGNORECASE
-    tokens = deepcopy(PostgresLexer.tokens)
+    tokens = dict((k, l[:]) for (k, l) in iteritems(PostgresLexer.tokens))
 
     tokens['root'].append(
         (r'\\[^\s]+', Keyword.Pseudo, 'psql-command'))
@@ -256,13 +251,14 @@ class lookahead(object):
             self._nextitem = None
             return ni
         return next(self.iter)
+    next = __next__
 
 
 class PostgresConsoleLexer(Lexer):
     """
     Lexer for psql sessions.
 
-    *New in Pygments 1.5.*
+    .. versionadded:: 1.5
     """
 
     name = 'PostgreSQL console (psql)'
@@ -381,7 +377,7 @@ class SqlLexer(RegexLexer):
              r'DIAGNOSTICS|DICTIONARY|DISCONNECT|DISPATCH|DISTINCT|DO|'
              r'DOMAIN|DROP|DYNAMIC|DYNAMIC_FUNCTION|DYNAMIC_FUNCTION_CODE|'
              r'EACH|ELSE|ENCODING|ENCRYPTED|END|END-EXEC|EQUALS|ESCAPE|EVERY|'
-             r'EXCEPT|ESCEPTION|EXCLUDING|EXCLUSIVE|EXEC|EXECUTE|EXISTING|'
+             r'EXCEPTION|EXCEPT|EXCLUDING|EXCLUSIVE|EXEC|EXECUTE|EXISTING|'
              r'EXISTS|EXPLAIN|EXTERNAL|EXTRACT|FALSE|FETCH|FINAL|FIRST|FOR|'
              r'FORCE|FOREIGN|FORTRAN|FORWARD|FOUND|FREE|FREEZE|FROM|FULL|'
              r'FUNCTION|G|GENERAL|GENERATED|GET|GLOBAL|GO|GOTO|GRANT|GRANTED|'
@@ -529,7 +525,7 @@ class SqliteConsoleLexer(Lexer):
     """
     Lexer for example sessions using sqlite3.
 
-    *New in Pygments 0.11.*
+    .. versionadded:: 0.11
     """
 
     name = 'sqlite3con'

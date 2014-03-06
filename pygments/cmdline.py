@@ -5,9 +5,12 @@
 
     Command line interface.
 
-    :copyright: Copyright 2006-2012 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2014 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from __future__ import print_function
+
 import sys
 import getopt
 from textwrap import dedent
@@ -92,7 +95,7 @@ def _parse_options(o_strs):
         for o_arg in o_args:
             o_arg = o_arg.strip()
             try:
-                o_key, o_val = o_arg.split('=')
+                o_key, o_val = o_arg.split('=', 1)
                 o_key = o_key.strip()
                 o_val = o_val.strip()
             except ValueError:
@@ -192,9 +195,17 @@ def main(args=sys.argv):
 
     usage = USAGE % ((args[0],) * 6)
 
+    if sys.platform in ['win32', 'cygwin']:
+        try:
+            # Provide coloring under Windows, if possible
+            import colorama
+            colorama.init()
+        except ImportError:
+            pass
+
     try:
         popts, args = getopt.getopt(args[1:], "l:f:F:o:O:P:LS:a:N:hVHg")
-    except getopt.GetoptError as err:
+    except getopt.GetoptError:
         print(usage, file=sys.stderr)
         return 2
     opts = {}
@@ -219,7 +230,7 @@ def main(args=sys.argv):
         return 0
 
     if opts.pop('-V', None) is not None:
-        print('Pygments version %s, (c) 2006-2011 by Georg Brandl.' % __version__)
+        print('Pygments version %s, (c) 2006-2014 by Georg Brandl.' % __version__)
         return 0
 
     # handle ``pygmentize -L``
@@ -370,9 +381,9 @@ def main(args=sys.argv):
             except ClassNotFound as err:
                 if '-g' in opts:
                     try:
-                        lexer = guess_lexer(code)
+                        lexer = guess_lexer(code, **parsed_opts)
                     except ClassNotFound:
-                        lexer = TextLexer()
+                        lexer = TextLexer(**parsed_opts)
                 else:
                     print('Error:', err, file=sys.stderr)
                     return 1
@@ -384,9 +395,9 @@ def main(args=sys.argv):
         if '-g' in opts:
             code = sys.stdin.read()
             try:
-                lexer = guess_lexer(code)
+                lexer = guess_lexer(code, **parsed_opts)
             except ClassNotFound:
-                lexer = TextLexer()
+                lexer = TextLexer(**parsed_opts)
         elif not lexer:
             print('Error: no lexer name given and reading ' + \
                                 'from stdin (try using -g or -l <lexer>)', file=sys.stderr)
@@ -418,7 +429,7 @@ def main(args=sys.argv):
         for fname, fopts in F_opts:
             lexer.add_filter(fname, **fopts)
         highlight(code, lexer, fmter, outfile)
-    except Exception as err:
+    except Exception:
         import traceback
         info = traceback.format_exception(*sys.exc_info())
         msg = info[-1].strip()
