@@ -22,3 +22,5 @@ Now, how do we map these Sublime scopes to Pygments tokens? There's a workflow t
 5. Look through the scopes applied to that character. Choose the scope you think fits best for coloring this code.
 6. Map it to a scope that fits.
 7. Test, check with default color theme and with perldoc.
+
+Note: Using a plugin like ScopeAlways may be even better for determining scopes for characters. You simply need to make sure it gives you /all/ the scoping information, so that you can hopefully choose one of the higher-level scopes (that are applied to everything of the type you're trying to color) instead of a specific scope that only applies in one specific language.
