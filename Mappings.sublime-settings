@@ -1,0 +1,58 @@
+{
+    "map": [
+        //// Generics
+        ["comment.line", "Comment.Single"],
+        ["comment", "Comment"],
+
+        ["numeric", "Number"],
+        ["arithmetic", "Number"],
+
+        //// Language-specific scopes
+        // Python
+        ["constant.other.placeholder.python", "Name.Variable"],
+        ["string.quoted.double.block.python", "String.Doc"],
+
+        ["keyword.control.import.python", "Keyword.Namespace"],
+        ["keyword.control.import.from.python", "Keyword.Namespace"],
+
+        ["support.function.builtin.python", "Name.Builtin"],
+        ["variable.language.python", "Name.Builtin.Pseudo"],
+
+        ["entity.other.inherited-class.python", "Name.Attribute"],
+
+        ["storage.type.class.python", "Keyword"],
+        ["storage.type.function.python", "Keyword"],
+
+        ["keyword.operator.logical.python", "Operator.Word"],
+
+        // C/C-like
+        ["storage.modifier.c", "Keyword"],
+        ["storage.type.c", "Keyword.Type"],
+        ["meta.function-call.c", "Name.Attribute"],
+        ["support.function.C99.c", "Name.Attribute"],
+
+        // Java
+        ["storage.modifier.import.java", "Name.Namespace"],
+
+        ["storage.modifier.java", "Keyword"],
+        ["storage.type.java", "Keyword.Type"],
+
+        ["variable.parameter.java", "Name.Variable"],
+
+        //// Low-priority generics
+        ["string.quoted.single.single-line", "String.Single"],
+        ["string", "String"],
+
+        ["constant", "Name.Constant"],
+
+        // For the operator output with Pygments" lexer, "switch "keyword" and "operator"
+        ["keyword", "Keyword"],
+        ["operator", "Operator"],
+
+        ["entity.name.type.class", "Name.Class"],
+        ["entity.name.function", "Name.Function"],
+        ["storage.type", "Keyword.Type"],
+
+        ["variable.parameter.function", "Name.Variable"]
+    ]
+}

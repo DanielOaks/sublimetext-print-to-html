@@ -35,6 +35,20 @@
                                 },
                                 "caption": "Settings – User"
                             },
+                            {
+                                "command": "open_file", "args":
+                                {
+                                    "file": "${packages}/Print to HTML/Mappings.sublime-settings"
+                                },
+                                "caption": "Scope to Token Mapping – Default"
+                            },
+                            {
+                                "command": "open_file", "args":
+                                {
+                                    "file": "${packages}/User/Mappings.sublime-settings"
+                                },
+                                "caption": "Scope to Token Mapping – User"
+                            },
                             { "caption": "-" },
                             {
                                 "command": "open_file",

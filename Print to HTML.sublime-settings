@@ -49,5 +49,9 @@
     // Use this to add custom CSS rules to the output; note that using "monochrome": true may
     // override color-related custom CSS styling used here
     // "custom_css": "body { background-color: black; } .highlight * { color: white; }"
-    "custom_css": ""
+    "custom_css": "",
+
+    // Whether to output debugging information to the console
+    // Useful for adding new scoping rules
+    "debug": false
 }

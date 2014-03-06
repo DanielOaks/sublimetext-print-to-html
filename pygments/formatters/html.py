@@ -257,6 +257,9 @@ class HtmlFormatter(Formatter):
     `linenostart`
         The line number for the first line (default: ``1``).
 
+    `linenoend`
+        The last line number. Affects the inline line number spacing only.
+
     `linenostep`
         If set to a number n > 1, only every nth line number is printed.
 
@@ -361,6 +364,7 @@ class HtmlFormatter(Formatter):
         else:
             self.linenos = 0
         self.linenostart = abs(get_int_opt(options, 'linenostart', 1))
+        self.linenoend = abs(get_int_opt(options, 'linenoend', 0))
         self.linenostep = abs(get_int_opt(options, 'linenostep', 1))
         self.linenospecial = abs(get_int_opt(options, 'linenospecial', 0))
         self.nobackground = get_bool_opt(options, 'nobackground', False)
@@ -564,7 +568,11 @@ class HtmlFormatter(Formatter):
         sp = self.linenospecial
         st = self.linenostep
         num = self.linenostart
-        mw = len(str(len(lines) + num - 1))
+        if self.linenoend:
+            linenoend = self.linenoend
+        else:
+            linenoend = len(lines) + num - 1
+        mw = len(str(linenoend))
 
         if self.noclasses:
             if sp:

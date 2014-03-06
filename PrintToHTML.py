@@ -12,11 +12,14 @@ import tempfile
 import re
 import textwrap
 
+from sublimepygments import SublimeLexer
+
 import pygments
 import pygments.formatters
 import pygments.lexers
 
 WORD_WRAP_SCRIPT_BLOCK = '\n'.join(['<script>', sublime.load_resource(sublime.find_resources('wordwrap.js')[0]), '</script>'])
+
 
 class PrintToHtmlCommand(sublime_plugin.TextCommand):
     """Convert current file to HTML and view in browser or ST2 buffer."""
@@ -28,22 +31,22 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         selections = self.view.sel()
 
         if text_selected(selections):
-            texts = []
+            regions = []
 
             for selection in selections:
-                # start/end at start/end of selected line
+                # convert to start/end at start/end of selected line
                 region = self.view.line(sublime.Region(selection.a, selection.b))
 
                 # check for previous selection's bounds, add together if they overlap
-                if len(texts) > 0 and (texts[-1][2].b >= region.a):
-                    new_region = sublime.Region(texts[-1][2].a, region.b)
-                    texts[-1] = [texts[-1][0], self.view.substr(new_region), new_region]
+                if len(regions) > 0 and (regions[-1].b >= region.a):
+                    new_region = sublime.Region(regions[-1].a, region.b)
+                    regions[-1] = new_region
                 else:
-                    texts.append([self.view.rowcol(region.a)[0] + 1, self.view.substr(region), region])
+                    regions.append(region)
 
         else:
             region = sublime.Region(0, self.view.size())
-            texts = [[1, self.view.substr(region)]]
+            regions = [region]
 
         # get the buffer's filename
         filename = self.view.file_name()
@@ -55,15 +58,6 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         elif encoding == 'Western (Windows 1252)':
             encoding = 'windows-1252'
 
-        # turn tabs into spaces per view's setting to ensure proper indentation
-        spaces = ' ' * int(self.view.settings().get('tab_size', 8))
-        for i in range(len(texts)):
-            texts[i][1] = re.sub(r'\t', spaces, texts[i][1])
-
-        # get buffer's syntax name, to be used as a hint for choosing a lexer
-        syntax = self.view.settings().get('syntax')
-        syntax = re.sub(r'.+/(.+).tmLanguage', r'\1', syntax).lower()
-
         # gather Pygment related option flags from plugin settings
         optlist = ['line_numbering', 'draw_background', 'line_anchors']
         options = dict([(x, settings.get(x, False)) for x in optlist])
@@ -72,7 +66,7 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         style = settings.get('style', 'default')
 
         # perform the conversion to HTML
-        css, texts = convert_to_html(filename, texts, syntax, encoding, options, style)
+        css, texts = convert_to_html(filename, regions, encoding, options, style, self.view)
 
         # construct onload body attrib for print/close JS within browser
         if target == 'browser':
@@ -170,66 +164,24 @@ def send_to_new_buffer(view, html):
     new_view.run_command('append',{'characters':html})
     
 
-def get_lexer(filename, syntax, text):
-    """Try to determine the appropriate lexer for the given file/syntax/text."""
-    # special case for Plain Text syntax and empty files
-    if syntax == 'plain text' or text == '':
-        lexer = pygments.lexers.TextLexer()
-        print('Plain text or no text, defaulting to:', lexer)
-        return lexer
-
-    # look for a lexer based on the ST2 syntax name
-    try:
-        lexer = pygments.lexers.get_lexer_by_name(syntax)
-        print('Guessed lexer from ST2 syntax setting:', lexer)
-        return lexer
-    except pygments.util.ClassNotFound:
-        pass
-
-    # look for a lexer based on the ST2 sub-syntax name, e.g. 'Django' in 'HTML (Django)'
-    if '(' in syntax:
-        syntax = re.sub(r'.+\((.+)\)', r'\1', syntax)
-        print(syntax)
-        try:
-            lexer = pygments.lexers.get_lexer_by_name(syntax)
-            print('Guessed lexer from ST2 sub-syntax setting:', lexer)
-            return lexer
-        except pygments.util.ClassNotFound:
-            pass
-
-    # guess lexer by buffer's filename
-    if filename is not None and len(filename) >= 3:
-        try:
-            lexer = pygments.lexers.guess_lexer_for_filename(filename, text)
-            print('Guessed lexer from filename:', lexer)
-            return lexer
-        except pygments.util.ClassNotFound:
-            pass
-
-    # guess lexer by analyzing the text
-    lexer = pygments.lexers.guess_lexer(text)
-    print('Guessed lexer from text analysis:', lexer)
-    return lexer
-
-
-def convert_to_html(filename, texts, syntax, encoding, options, style):
+def convert_to_html(filename, regions, encoding, options, style, view):
     """Convert text to HTML form, using filename and syntax as lexer hints."""
     formatter = pygments.formatters.HtmlFormatter(
         encoding=encoding,
         linenos='inline' if options['line_numbering'] else False,
         nobackground=not options['draw_background'],
         lineanchors='line' if options['line_anchors'] else False,
-        style=style)
+        style=style,
+        linenoend=view.rowcol(regions[-1].b)[0] + 1)
 
     css = formatter.get_style_defs('.highlight')
-    texts_out = []
-    for text in texts:
-        lexer = get_lexer(filename, syntax, text[1])
-        formatter.linenostart = text[0]  # line number for each block
-        html = pygments.highlight(text[1], lexer, formatter)
-        texts_out.append(html)
+    texts = []
+    for region in regions:
+        formatter.linenostart = view.rowcol(region.a)[0] + 1  # line number for each block
+        html = pygments.format(SublimeLexer().get_tokens([region, view]), formatter)
+        texts.append(html)
 
-    return css, texts_out
+    return css, texts
 
 
 def text_selected(selections):
