@@ -101,8 +101,8 @@ class SublimeLexer(Lexer):
                     print_buffer_string = buffer_string[(len(buffer_string) - 50):]
                 else:
                     print_buffer_string = buffer_string
-                print [python_namespace, current_string, current_token, print_buffer_string]
-                print '  ', [current_scope]
+                print([python_namespace, current_string, current_token, print_buffer_string])
+                print('  ', [current_scope])
 
             if buffer_token == current_token:
                 buffer_string += current_string
@@ -110,7 +110,7 @@ class SublimeLexer(Lexer):
                 if len(buffer_string):
                     tokens.append((buffer_token, buffer_string))
                     if debug:
-                        print '    ', [buffer_token, buffer_string], '\n'
+                        print('    ', [buffer_token, buffer_string], '\n')
                 buffer_token = current_token
                 buffer_string = current_string
 
