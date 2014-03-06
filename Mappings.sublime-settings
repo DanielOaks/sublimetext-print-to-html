@@ -24,6 +24,8 @@
         ["storage.type.function.python", "Keyword"],
 
         ["keyword.operator.logical.python", "Operator.Word"],
+        
+        ["meta.function.parameters.python", "Name.Variable"],
 
         // Lua
         ["support.function.lua", "Name.Builtin.Pseudo"],
@@ -57,6 +59,6 @@
         ["entity.name.function", "Name.Function"],
         ["storage.type", "Keyword.Type"],
 
-        ["variable.parameter.function", "Name.Variable"]
+        ["variable.parameter.function", "Name.Variable"],
     ]
 }
