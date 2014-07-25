@@ -2,7 +2,7 @@
 
 import sublime
 from pygments.lexer import Lexer
-from pygments.token import STANDARD_TYPES, Generic, Name, Keyword
+from pygments.token import STANDARD_TYPES, Generic, Keyword
 
 
 token_alias_maps = [

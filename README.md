@@ -13,7 +13,7 @@ Colorization and HTML conversion is currently performed by [Pygments][0], which 
 
 If you prefer to install manually, install git, then:
 
-    git clone https://github.com/joelpt/sublimetext-print-to-html "<Sublime Text 2 Packages folder>/Print to HTML"
+    git clone https://github.com/joelpt/sublimetext-print-to-html "<Sublime Text 3 Packages folder>/Print to HTML"
 
 ## Usage
 
@@ -26,7 +26,7 @@ If you prefer to install manually, install git, then:
 
 ## Future goals
 
- * Use ST2's internal scope and color data from a buffer to produce an exact replica of a file from ST2 in HTML form. The current approach using Pygments has limitations regarding formats unknown by Pygments (e.g. Markdown) and documents with mixed syntaxes (e.g. PHP embedded in HTML).
+ * Use ST3's internal scope and color data from a buffer to produce an exact replica of a file from ST3 in HTML form. The current approach using Pygments has limitations regarding formats unknown by Pygments (e.g. Markdown) and documents with mixed syntaxes (e.g. PHP embedded in HTML).
 
 ## Credits
 
