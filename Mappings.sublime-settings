@@ -15,6 +15,9 @@
         ["keyword.control.import.python", "Keyword.Namespace"],
         ["keyword.control.import.from.python", "Keyword.Namespace"],
 
+        ["support.type.python", "Keyword.Type"],
+
+        ["support.variable.magic.python", "Name.Builtin"],
         ["support.function.builtin.python", "Name.Builtin"],
         ["variable.language.python", "Name.Builtin.Pseudo"],
 
@@ -51,7 +54,7 @@
 
         ["constant", "Name.Constant"],
 
-        // For the operator output with Pygments" lexer, "switch "keyword" and "operator"
+        // For the operator output with Pygments' lexer, "switch "keyword" and "operator"
         ["keyword", "Keyword"],
         ["operator", "Operator"],
 

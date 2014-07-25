@@ -9,8 +9,6 @@ import sublime
 import sublime_plugin
 import desktop
 import tempfile
-import re
-import textwrap
 
 from sublimepygments import SublimeLexer
 
@@ -78,6 +76,10 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
         else:
             onload = ''
 
+        # line numbering
+        if settings.get('line_numbering', False):
+            css += '\n.lineno { color: #888; margin-right: 0.4rem; }'
+
         # force black and white styling if monochrome setting is on
         if settings.get('monochrome', False):
             css += '\n'.join(['',
@@ -131,7 +133,7 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
 
 def construct_html_document(encoding, title, css, texts, body_attribs):
     """Populate simple boilerplate HTML with given arguments."""
-    texts = [bytes(v,'UTF-8') if isinstance(v,str) else v for v in texts]
+    texts = [bytes(v, 'UTF-8') if isinstance(v, str) else v for v in texts]
     body = b'\n'.join(texts).decode('utf-8')
     output = '\n'.join([
         '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
@@ -153,7 +155,7 @@ def construct_html_document(encoding, title, css, texts, body_attribs):
 def send_to_browser(html):
     """Create a temp file containing html and open it in the default web browser."""
     tmp_html = tempfile.NamedTemporaryFile(delete=False, suffix='.html')
-    tmp_html.write(bytes(html,'UTF-8'))
+    tmp_html.write(bytes(html, 'UTF-8'))
     tmp_html.close()
     desktop.open(tmp_html.name)
 
@@ -161,8 +163,8 @@ def send_to_browser(html):
 def send_to_new_buffer(view, html):
     """Load html into a new buffer in the same window as view."""
     new_view = view.window().new_file()
-    new_view.run_command('append',{'characters':html})
-    
+    new_view.run_command('append', {'characters': html})
+
 
 def convert_to_html(filename, regions, encoding, options, style, view):
     """Convert text to HTML form, using filename and syntax as lexer hints."""

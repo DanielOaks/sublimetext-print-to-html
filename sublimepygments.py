@@ -2,7 +2,7 @@
 
 import sublime
 from pygments.lexer import Lexer
-from pygments.token import STANDARD_TYPES, Generic, Name
+from pygments.token import STANDARD_TYPES, Generic, Name, Keyword
 
 
 token_alias_maps = [
@@ -39,7 +39,7 @@ def create_token_mapping_dict():
 
 class SublimeLexer(Lexer):
     """
-    For `Sublime Text 2 <http://www.sublimetext.com/2>`_ source code.
+    For `Sublime Text 3 <http://www.sublimetext.com/3>`_ source code.
     """
 
     name = 'Sublime'
@@ -62,7 +62,7 @@ class SublimeLexer(Lexer):
         buffer_token = Generic
         buffer_string = u''
 
-        spaces = u' ' * int(view.settings().get('tab_size', 8))
+        spaces_per_tab = int(view.settings().get('tab_size', 8))
 
         python_namespace = 0
 
@@ -73,12 +73,29 @@ class SublimeLexer(Lexer):
         scope_map = scope_map_settings.get('map', [])
 
         for i in range(region.a, region.b):
-            current_string = view.substr(sublime.Region(i, i+1))
+            current_string = view.substr(sublime.Region(i, i + 1))
             current_scope = view.scope_name(i)
 
             # turn tabs into spaces per view's setting to ensure proper indentation
             if current_string == u'\t':
-                current_string = spaces
+                line_start = i - view.line(sublime.Region(i, i + 1)).a
+
+                this_line = view.substr(view.line(sublime.Region(i, i + 1)))
+                this_line_cut = this_line[:line_start + 1]
+
+                cur_tab_length = 0
+                cur_out_string = ''
+                for char in this_line_cut:
+                    if char == '\t':
+                        loop_size = 0
+                        while loop_size <= len(cur_out_string):
+                            loop_size += spaces_per_tab
+                        cur_tab_length = loop_size - len(cur_out_string)
+                        cur_out_string += u' ' * cur_tab_length
+                    else:
+                        cur_out_string += char
+
+                current_string = u' ' * cur_tab_length
 
             for scope in scope_map:
                 if scope[0] in current_scope:
@@ -90,13 +107,13 @@ class SublimeLexer(Lexer):
             # Python namespace highlighting
             if python_namespace and (current_string == u'\n'):
                 python_namespace = 0
-            if (('keyword.control.import.python' in current_scope) or \
-                ('keyword.control.import.from.python' in current_scope)) and \
-                ((len(buffer_string) == 0) or (buffer_token != current_token)):
+            if (('keyword.control.import.python' in current_scope) or
+                    ('keyword.control.import.from.python' in current_scope)) and \
+                    ((len(buffer_string) == 0) or (buffer_token != current_token)):
                 python_namespace += 1
-            if (python_namespace == 1) and ('keyword.control.import' not in current_scope) and \
-                (current_string not in [u' ', u'\n']):
-                current_token = Name.Namespace
+            if (python_namespace >= 1) and ('keyword.control.import' not in current_scope) and \
+                    (current_string not in [u' ', u'\n']):
+                current_token = Keyword.Namespace
 
             if debug:
                 if len(buffer_string) > 50:
