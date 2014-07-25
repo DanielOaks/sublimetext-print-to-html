@@ -32,7 +32,7 @@ If you prefer to install manually, install git, then:
 
 This code is available on [Github][1]. Pull requests are welcome.
 
-Created by [Joel Thornton][4]. 
+Created by [Joel Thornton][4], modified by [Daniel Oaks][5].
 
 Uses the [Pygments][0] library (included) for code-to-HTML conversion.
 
@@ -42,3 +42,4 @@ Uses the [Pygments][0] library (included) for code-to-HTML conversion.
  [2]: http://wbond.net/sublime_packages/package_control
  [3]: http://pygments.org/languages/
  [4]: mailto:sublime@joelpt.net
+ [4]: mailto:daniel@danieloaks.net
