@@ -66,8 +66,8 @@ class SublimeLexer(Lexer):
 
         python_namespace = 0
 
-        settings = sublime.load_settings('Print to HTML.sublime-settings')
-        debug = settings.get('debug', False)
+        # settings = sublime.load_settings('Print to HTML.sublime-settings')
+        # debug = settings.get('debug', False)
 
         scope_map_settings = sublime.load_settings('Mappings.sublime-settings')
         scope_map = scope_map_settings.get('map', [])
@@ -105,7 +105,7 @@ class SublimeLexer(Lexer):
                     current_token = Generic
 
             # Python namespace highlighting
-            # we do this because normal python sucks at scoping this
+            # we only do this because normal python sucks at scoping this
             if python_namespace and (current_string == u'\n'):
                 python_namespace = 0
             if (('keyword.control.import.python' in current_scope) or
@@ -123,6 +123,10 @@ class SublimeLexer(Lexer):
                     tokens.append((buffer_token, buffer_string))
                 buffer_token = current_token
                 buffer_string = current_string
+
+        # because otherwise, Pygments ignores it if it's a newline at end of file
+        if buffer_string.endswith('\n'):
+            buffer_string += ' '
 
         tokens.append((buffer_token, buffer_string))
 

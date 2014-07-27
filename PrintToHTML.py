@@ -54,6 +54,8 @@ class PrintToHtmlCommand(sublime_plugin.TextCommand):
             encoding = 'UTF-8'
         elif encoding == 'Western (Windows 1252)':
             encoding = 'windows-1252'
+        else:
+            encoding = 'UTF-8'  # silly assumption
 
         # gather Pygment related option flags from plugin settings
         optlist = ['line_numbering', 'draw_background', 'line_anchors']

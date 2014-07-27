@@ -67,6 +67,9 @@
         ["entity.name.tag.inline.any.html", "Name.Tag"],
         ["entity.other.attribute-name.html", "Name.Attribute"],
 
+        // makefiles
+        ["entity.name.function.makefile", "Name.Constant"],  // not strictly correct, but looks the best
+
         //// Low-priority generics
         ["string.quoted.single.single-line", "String.Single"],
         ["string", "String"],
