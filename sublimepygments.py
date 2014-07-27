@@ -2,7 +2,7 @@
 
 import sublime
 from pygments.lexer import Lexer
-from pygments.token import STANDARD_TYPES, Generic, Keyword
+from pygments.token import STANDARD_TYPES, Generic, Name
 
 
 token_alias_maps = [
@@ -105,6 +105,7 @@ class SublimeLexer(Lexer):
                     current_token = Generic
 
             # Python namespace highlighting
+            # we do this because normal python sucks at scoping this
             if python_namespace and (current_string == u'\n'):
                 python_namespace = 0
             if (('keyword.control.import.python' in current_scope) or
@@ -112,24 +113,14 @@ class SublimeLexer(Lexer):
                     ((len(buffer_string) == 0) or (buffer_token != current_token)):
                 python_namespace += 1
             if (python_namespace >= 1) and ('keyword.control.import' not in current_scope) and \
-                    (current_string not in [u' ', u'\n']):
-                current_token = Keyword.Namespace
-
-            if debug:
-                if len(buffer_string) > 50:
-                    print_buffer_string = buffer_string[(len(buffer_string) - 50):]
-                else:
-                    print_buffer_string = buffer_string
-                print('db1', [python_namespace, current_string, current_token, print_buffer_string])
-                print('db2   ', [current_scope])
+                    (current_string not in [u' ', u'\n', u',']):
+                current_token = Name.Namespace
 
             if buffer_token == current_token:
                 buffer_string += current_string
             else:
                 if len(buffer_string):
                     tokens.append((buffer_token, buffer_string))
-                    if debug:
-                        print('db3      ', [buffer_token, buffer_string], '\n')
                 buffer_token = current_token
                 buffer_string = current_string
 

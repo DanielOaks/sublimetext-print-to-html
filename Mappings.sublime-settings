@@ -48,6 +48,25 @@
 
         ["variable.parameter.java", "Name.Variable"],
 
+        // ActionScript
+        ["storage.modifier", "Keyword"],
+        ["meta.class.actionscript.2", "Name.Class"],
+        ["support.class.actionscript.2", "Name.Class"],
+
+        // JSON
+        ["string.quoted.double.json", "String.Double"],
+        ["string.quoted.single.json", "String.Single"],
+        ["comment.line.double-slash.js", "Comment.Single"],
+        ["constant.numeric.json", "Number"],
+
+        // ASM
+        ["entity.name.function.preprocessor", "Comment.Preproc"],
+
+        // HTML
+        ["entity.name.tag.block.any.html", "Name.Tag"],
+        ["entity.name.tag.inline.any.html", "Name.Tag"],
+        ["entity.other.attribute-name.html", "Name.Attribute"],
+
         //// Low-priority generics
         ["string.quoted.single.single-line", "String.Single"],
         ["string", "String"],

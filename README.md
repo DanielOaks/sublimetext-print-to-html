@@ -24,15 +24,40 @@ If you prefer to install manually, install git, then:
    * press `Ctrl+Shift+P` or `Cmd+Shift+P` then type `print`.
  * Edit settings in `Preferences->Package Settings->Print in HTML` to customize output formatting and behavior. Options such as monochrome, line numbering, and browser behavior can be modified.
 
-## Future goals
 
- * Use ST3's internal scope and color data from a buffer to produce an exact replica of a file from ST3 in HTML form. The current approach using Pygments has limitations regarding formats unknown by Pygments (e.g. Markdown) and documents with mixed syntaxes (e.g. PHP embedded in HTML).
+Coloring New Languages
+----------------------
 
-## Credits
+Print to HTML maps Sublime Text 2's language scopes to Pygments tokens. This document aims to explain what that means, how it works, and how you can improve incorrect/missing colorings yourself.
+
+## What is a scope? ##
+
+Sublime Text 2 names the tags given to each character, scopes. For instance, Python's ```import``` statement has the scope ```keyword.control.import.python```. Characters can have a bunch of scopes at once, so the order that we map scopes to tokens does matter.
+
+## What is a token? ##
+
+Pygments uses a bunch of tokens to map out the different types of code, and how to format them. Pygments tokens are things like ```Name.Builtin```, ```Comment.Multiline```, ```String```. The full list of Pygments tokens are in pygments/token.py, defined in STANDARD_TYPES.
+
+# Mapping Scopes to Tokens #
+
+Now, how do we map these Sublime scopes to Pygments tokens? There's a workflow that I use, that seems to work fairly well:
+
+1. Install the ```ScopeHunter``` package. Run the *Toggle Instant Scoper* command. Whenever you click on the string you want to highlight, it'll pop up the scope(s) that the text is in down the bottom.
+2. Look through the scopes applied to that character. Choose the scope you think fits best for coloring this code.
+3. Map it to a scope that fits. Do this by modifying the ```Mappings``` settings document
+4. Test, it's good to check with default color theme and with perldoc.
+
+Note: If possible, it's good to try and apply the scoping information to one of the language-independant scopes, rather than a language-specific one. As an example, a class name might be under something like ```class.name.python``` as well as ```class.name```, and in that case it would be better to scope the more generic ```class.name```.
+
+This is so that we can do the least amount of work possible to try and scope everything – as well as the upside that quite a bit of new languages are already scoped decently!
+
+
+Credits
+-------
 
 This code is available on [Github][1]. Pull requests are welcome.
 
-Created by [Joel Thornton][4], modified by [Daniel Oaks][5].
+Created by [Joel Thornton][4], extended by [Daniel Oaks][5].
 
 Uses the [Pygments][0] library (included) for code-to-HTML conversion.
 
