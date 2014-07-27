@@ -67,4 +67,4 @@ Uses the [Pygments][0] library (included) for code-to-HTML conversion.
  [2]: http://wbond.net/sublime_packages/package_control
  [3]: http://pygments.org/languages/
  [4]: mailto:sublime@joelpt.net
- [4]: mailto:daniel@danieloaks.net
+ [5]: mailto:daniel@danieloaks.net
